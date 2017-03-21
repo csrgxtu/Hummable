@@ -13,8 +13,8 @@ class WechatManager(object):
 
 
     def __init__(self):
-        self.bot = Bot()
-
+        bot = Bot()
+        self.bot = bot
 
 
     def qr_callback(self, uuid, status, qrcode):

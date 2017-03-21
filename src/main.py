@@ -8,8 +8,7 @@
 from configparser import SafeConfigParser
 from slack import SlackManager
 from wechat import WechatManager
-from wxpy import *
-
+from wxpy import embed
 
 def main():
     # get configurations
@@ -22,10 +21,12 @@ def main():
     print(slack_client.api_test())
 
     # wechat
-    wecaht_client = WechatManager()
-    @bot.register()
-    def incoming_msg(msg):
+    wechat_manager = WechatManager()
+    @wechat_manager.bot.register()
+    def print_msgs(msg):
         print(msg)
+
+    embed() #wait infinite, or programme will exit right away
 
 
 if __name__ == '__main__':
