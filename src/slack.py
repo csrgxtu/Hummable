@@ -74,7 +74,7 @@ class SlackManager(object):
         else:
             return False
 
-    # archive private group
+    # archive private group, this will delete the group
     # boolean
     def archive_private_group(self, gid):
         url = self.api_prefix + 'groups.archive?channel=' + gid + '&token=' + self.token
@@ -91,8 +91,13 @@ class SlackManager(object):
     # send msg to a private group
     # return boolean
     def send_msg_to_private_group(self, gid, msg, as_user, user_name):
-        rtv = self.slack_client.api_call('chat.postMessage', channel=gid, text=msg, as_user=False, user_name=user_name)
-        if rtv.get('ok') is True:
-            return True
+        url = self.api_prefix + 'chat.postMessage?channel=' + gid + '&text=' + msg + '&as_user=false&user_name=' + user_name + '&token=' + self.token
+        body = requests.get(url)
+        if body.status_code == 200:
+            rtv = json.loads(body.text)
+            if rtv.get('ok') is True:
+                return True
+            else:
+                return False
         else:
             return False
