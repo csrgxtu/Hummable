@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # coding=utf-8
 #
 # Author: Archer
@@ -8,5 +7,22 @@
 from slackclient import SlackClient
 
 class SlackManager(object):
-    def __init__(slef):
-        pass
+    token = None
+    slack_client = None
+
+    def __init__(self, token):
+        self.token = token
+        self.slack_client = SlackClient(token)
+
+    # test the slack client connection
+    # return dict about your token
+    def api_test(self):
+        rtv = self.slack_client.api_call('api.test')
+        return rtv
+
+
+    # test auth of this token info
+    # return dict
+    def auth_test(self):
+        rtv = self.slack_client.api_call('auth.test')
+        return rtv

@@ -5,7 +5,26 @@
 # File: wechat.py
 # Date: 21/March/2017
 # Desc: wechat logic
+from wxpy import *
+
 
 class WechatManager(object):
+    bot = None
+
+
     def __init__(self):
-        pass
+        self.bot = Bot()
+
+
+
+    def qr_callback(self, uuid, status, qrcode):
+        print(uuid)
+        return
+
+    def login_callback(self):
+        print('login_callback')
+        return
+
+    def logout_callback(self):
+        print('logout_callback')
+        return
