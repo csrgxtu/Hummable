@@ -92,7 +92,9 @@ class SlackManager(object):
     # return boolean
     def send_msg_to_private_group(self, gid, msg, as_user, user_name):
         url = self.api_prefix + 'chat.postMessage?channel=' + gid + '&text=' + msg + '&as_user=false&user_name=' + user_name + '&token=' + self.token
+        print(url)
         body = requests.get(url)
+        print(body.text)
         if body.status_code == 200:
             rtv = json.loads(body.text)
             if rtv.get('ok') is True:
