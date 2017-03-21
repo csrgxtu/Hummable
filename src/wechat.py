@@ -5,3 +5,7 @@
 # File: wechat.py
 # Date: 21/March/2017
 # Desc: wechat logic
+
+class WechatManager(object):
+    def __init__(self):
+        pass
