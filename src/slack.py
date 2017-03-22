@@ -79,22 +79,25 @@ class SlackManager(object):
     def archive_private_group(self, gid):
         url = self.api_prefix + 'groups.archive?channel=' + gid + '&token=' + self.token
         body = requests.get(url)
+        print(body.text)
         if body.status_code == 200:
-            rtv = json.loads(body.text)
-            if rtv.get('ok') is True:
-                return True
-            else:
+            try:
+                rtv = json.loads(body.text)
+                if rtv.get('ok') is True:
+                    return True
+                else:
+                    return False
+            except:
                 return False
         else:
             return False
 
     # send msg to a private group
     # return boolean
-    def send_msg_to_private_group(self, gid, msg, as_user, user_name, icon_url):
-        data = dict(channel=gid, text=msg, as_user='false', user_name=user_name, icon_url=icon_url, token=self.token)
-        # url = self.api_prefix + 'chat.postMessage?channel=' + gid + '&text=' + msg + '&as_user=false&user_name=' + user_name + '&token=' + self.token
-        # print(url)
-        body = requests.get(self.api_prefix, params=data)
+    def send_msg_to_private_group(self, gid, msg, as_user, username, icon_url):
+        data = dict(channel=gid, text=msg, as_user='false', username=username, icon_url=icon_url, token=self.token)
+        url = self.api_prefix + 'chat.postMessage'
+        body = requests.get(url, params=data)
         print(body.text)
         if body.status_code == 200:
             rtv = json.loads(body.text)
