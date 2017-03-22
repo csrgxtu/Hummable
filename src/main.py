@@ -25,7 +25,12 @@ def main():
     @wechat_manager.bot.register()
     def print_msgs(msg):
         # send to a hard coded group, i.e #passed
-        if slack_manager.send_msg_to_private_group('G4LQR11LH', msg.text, False, 'wechat[hummable]:'):
+        gid = 'G4LQR11LH'
+        msg = msg.text
+        as_user = 'false'
+        user_name = 'wechat'
+        icon_url = 'https://avatars1.githubusercontent.com/u/7353063'
+        if slack_manager.send_msg_to_private_group(gid, msg, as_user, user_name, icon_url):
             print(msg.text)
             print('Success')
         else:
