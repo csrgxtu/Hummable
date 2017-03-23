@@ -26,7 +26,7 @@ def main():
         msg_type = msg.type
         gid = 'G4LQR11LH'
         as_user = 'false'
-        user_name = msg.sender.name
+        user_name = msg.sender.name + ' -- '+ msg.sender.wxid
         icon_url = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png'
 
         if msg_type is not 'Text':
