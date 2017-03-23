@@ -13,15 +13,13 @@ class WechatManager(object):
     msg = None
 
 
-    def __init__(self):
+    def __init__(self, receive_msg_handler):
         bot = Bot()
         self.bot = bot
         @bot.register()
         def receive_msg(msg):
-            # print(msg.text)
-            # print(msg.sender)
-            # print(msg.type)
             self.msg = msg
+            receive_msg_handler(msg)
 
     def qr_callback(self, uuid, status, qrcode):
         print(uuid)
