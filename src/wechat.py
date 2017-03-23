@@ -11,6 +11,7 @@ from wxpy import *
 class WechatManager(object):
     bot = None
     msg = None
+    # Sessions = list()
 
 
     def __init__(self, receive_msg_handler):
@@ -19,6 +20,9 @@ class WechatManager(object):
         @bot.register()
         def receive_msg(msg):
             self.msg = msg
+            # if self.msg.sender.wxid not in self.Sessions:
+            #     session = dict(sid=self.msg.sender.wxid, sender=self.msg.sender)
+            #     self.Sessions.append(session)
             receive_msg_handler(msg)
 
     def qr_callback(self, uuid, status, qrcode):

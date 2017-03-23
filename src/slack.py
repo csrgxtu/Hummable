@@ -22,7 +22,7 @@ class SlackManager(object):
 
         # self.slack_client = SlackClient(token)
 
-    def create_rtm_client(self):
+    def create_rtm_client(self, send_msg_handler):
         self.rtm_client = SlackClient(self.token)
         if self.rtm_client.rtm_connect():
             # to do
@@ -31,6 +31,7 @@ class SlackManager(object):
                 if len(rtv) != 0:
                     if not rtv[0].get('subtype') and rtv[0].get('type') == 'message':
                         print(rtv[0])
+                        send_msg_handler(rtv[0].get('text'))
                 time.sleep(1)
         else:
             # warning here

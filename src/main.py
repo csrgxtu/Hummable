@@ -16,11 +16,25 @@ def main():
     parser = SafeConfigParser()
     parser.read('../conf/hummable.ini')
     token = parser.get('slack', 'token')
+    WechatSessions = list()
 
     # client
+    def send_msg_handler(msg):
+        # split wxid msg
+        wxid, text = msg.split(' ', 1)
+        # query WechatSessions
+        for session in WechatSessions:
+            if wxid == session.get('sid'):
+                sender = session.get('sender')
+                sender.send(text)
     slack_manager = SlackManager(token)
 
+    # wechat
     def receive_msg_handler(msg):
+        if msg.sender.wxid not in WechatSessions:
+            session = dict(sid=msg.sender.wxid, sender=msg.sender)
+            WechatSessions.append(session)
+
         sender = msg.sender # sender object
         text = msg.text
         msg_type = msg.type
@@ -37,11 +51,10 @@ def main():
         else:
             print('error send msg from wechat ' + user_name + ' to slack ' + gid)
 
-    # wechat
     wechat_manager = WechatManager(receive_msg_handler)
 
     # create slack rtm client
-    slack_manager.create_rtm_client()
+    slack_manager.create_rtm_client(send_msg_handler)
 
     embed(shell='ipython', banner='Being hummable') #wait infinite, or programme will exit right away
 
