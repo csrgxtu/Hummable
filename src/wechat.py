@@ -10,12 +10,18 @@ from wxpy import *
 
 class WechatManager(object):
     bot = None
+    msg = None
 
 
     def __init__(self):
         bot = Bot()
         self.bot = bot
-
+        @bot.register()
+        def receive_msg(msg):
+            # print(msg.text)
+            # print(msg.sender)
+            # print(msg.type)
+            self.msg = msg
 
     def qr_callback(self, uuid, status, qrcode):
         print(uuid)
