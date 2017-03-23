@@ -40,6 +40,9 @@ def main():
     # wechat
     wechat_manager = WechatManager(receive_msg_handler)
 
+    # create slack rtm client
+    slack_manager.create_rtm_client()
+
     embed(shell='ipython', banner='Being hummable') #wait infinite, or programme will exit right away
 
 

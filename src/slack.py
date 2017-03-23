@@ -4,8 +4,9 @@
 # File: slack.py
 # Desc: slack logic
 # Date: 21/March/2017
-# from slackclient import SlackClient
+from slackclient import SlackClient
 import requests
+import time
 import json
 
 
@@ -13,10 +14,27 @@ class SlackManager(object):
     api_prefix = 'https://slack.com/api/'
     token = None
     slack_client = None
+    rtm = None
 
     def __init__(self, token):
         self.token = token
+
+
         # self.slack_client = SlackClient(token)
+
+    def create_rtm_client(self):
+        self.rtm_client = SlackClient(self.token)
+        if self.rtm_client.rtm_connect():
+            # to do
+            while True:
+                rtv = self.rtm_client.rtm_read()
+                if len(rtv) != 0:
+                    if not rtv[0].get('subtype') and rtv[0].get('type') == 'message':
+                        print(rtv[0])
+                time.sleep(1)
+        else:
+            # warning here
+            return False
 
     # test the slack client connection
     # return dict about your token
