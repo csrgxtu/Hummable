@@ -1,0 +1,3 @@
+[{u'source_team': u'T4LF7U35K', u'text': u'csrgxtu spinning',
+u'ts': u'1490285219.114727', u'user': u'U4M384E8N',
+u'team': u'T4LF7U35K', u'type': u'message', u'channel': u'G4LQR11LH'}]
