@@ -1,4 +1,6 @@
+
 def receive_msg_handler(slack_manager, msg, Sessions):
+    """ when received msg from wx, post this msg to slack """
     if msg.sender.wxid not in Sessions:
         session = dict(sid=msg.sender.wxid, sender=msg.sender)
         Sessions.append(session)
