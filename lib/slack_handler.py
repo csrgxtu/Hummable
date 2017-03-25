@@ -5,7 +5,7 @@ def receive_msg_handler(slack_manager, msg, sessions):
     #     session = dict(sid=msg.sender.wxid, sender=msg.sender)
     #     Sessions.append(session)
 
-    rtv = slack_manager.open_private_group(name=msg.sender.name, identity_id=msg.sender.wxid, sessions=sessions)
+    rtv = slack_manager.open_private_group(name=msg.sender.name, wxid=msg.sender.wxid, sessions=sessions)
     if not rtv:
         print('cant create private group')
         return False

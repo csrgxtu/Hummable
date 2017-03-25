@@ -22,7 +22,7 @@ class SlackManager(object):
     def __init__(self, token):
         self.token = token
 
-    def create_rtm_client(self, send_msg_handler, sessions):
+    def create_rtm_client(self, send_msg_handler, sessions, slack_manager):
         self.rtm_client = SlackClient(self.token)
         if self.rtm_client.rtm_connect():
             # to do
@@ -31,7 +31,7 @@ class SlackManager(object):
                 if len(rtv) != 0:
                     if not rtv[0].get('subtype') and rtv[0].get('type') == 'message':
                         print(rtv[0])
-                        send_msg_handler(rtv[0].get('text'), rtv[0].get('channel'), sessions)
+                        send_msg_handler(rtv[0].get('text'), rtv[0].get('channel'), sessions, slack_manager)
                 time.sleep(1)
         else:
             # warning here
@@ -51,13 +51,13 @@ class SlackManager(object):
         return rtv
 
     # open or create a slack group, return group id
-    def open_private_group(self, name, identity_id, sessions):
+    def open_private_group(self, name, wxid, sessions):
         """ open or create a private group """
         # first, check if identity_id and name already exists in
         for session in sessions:
-            if session.get('wxid') == identity_id or session.get('slack_group').get('name') == name.lower():
+            if session.get('wxid') == wxid or (session.get('slack_group') and session.get('slack_group').get('name') == name.lower()):
                 # open it
-                if session.get('slack_group').get('is_archived') == True:
+                if session.get('slack_group') and session.get('slack_group').get('is_archived') == True:
                     # open id
                     if self._unarchive_private_group(session.get('slack_group').get('id')):
                         return session.get('slack_group').get('id')
@@ -65,17 +65,19 @@ class SlackManager(object):
                         return False
                 else:
                     return session.get('slack_group').get('id')
-
-        return self.create_private_group(name, identity_id, sessions)
+        return self.create_private_group(name, sessions)
 
     def _unarchive_private_group(self, channel_id):
         """ unarchive an private group """
         url = self.api_prefix + 'groups.unarchive'
         data = dict(token=self.token, channel=channel_id)
         body = requests.get(url, params=data)
+        print(body.text)
         if body.status_code == 200:
             rtv = json.loads(body.text)
             if rtv.get('ok') is True:
+                return True
+            elif rtv.get('error') == 'not_archived':
                 return True
 
         return False
@@ -96,7 +98,7 @@ class SlackManager(object):
 
     # create a private group
     # boolean or the group id
-    def create_private_group(self, name, identity_id, sessions):
+    def create_private_group(self, name, sessions):
         url = self.api_prefix + 'groups.create?name=' + name + '&token=' + self.token
         body = requests.get(url)
         if body.status_code == 200:

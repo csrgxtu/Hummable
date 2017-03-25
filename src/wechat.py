@@ -12,7 +12,6 @@ class WechatManager(object):
     slack_manager = None
     bot = None
     msg = None
-    sessions = list()   # hold session between hummable and wechat {sid, sender}
     friends = list()
     groups = list()
     mps = list()
@@ -20,6 +19,10 @@ class WechatManager(object):
 
 
     def __init__(self, slack_manager, receive_msg_handler, session_storage):
+        # open default wechat group in slack for commands
+        slack_manager.open_private_group(name='wechat', wxid='somerandomid', sessions=session_storage)
+
+
         bot = Bot()
         self.bot = bot
         self._prepare_friends(bot)
@@ -27,6 +30,14 @@ class WechatManager(object):
         self._prepare_mps(bot)
         self._parepare_chats(bot)
         self.slack_manager = slack_manager
+
+        # add users, groups into sessions
+        for friend in self.friends:
+            session_storage.append(dict(wxid=friend.wxid, wx_user=friend))
+
+        for group in self.groups:
+            session_storage.append(dict(wxid=group.wxid, wx_user=group))
+
 
         @bot.register()
         def receive_msg(msg):
