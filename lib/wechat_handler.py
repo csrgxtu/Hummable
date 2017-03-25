@@ -9,5 +9,6 @@ def send_msg_handler(msg, Sessions):
             if wxid == session.get('sid'):
                 sender = session.get('sender')
                 sender.send(text)
+                break
     else:
         print(msg)
