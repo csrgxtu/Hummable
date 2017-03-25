@@ -25,7 +25,7 @@ def main():
     wechat_manager = WechatManager(slack_manager, receive_msg_handler)
 
     # create slack rtm client
-    slack_manager.create_rtm_client(send_msg_handler, wechat_manager.Sessions)
+    slack_manager.create_rtm_client(send_msg_handler, wechat_manager.sessions)
 
     embed(shell='ipython', banner='Being hummable') #wait infinite, or programme will exit right away
 

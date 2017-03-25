@@ -12,7 +12,7 @@ class WechatManager(object):
     slack_manager = None
     bot = None
     msg = None
-    Sessions = list()
+    sessions = list()
     friends = list()
     groups = list()
     mps = list()
@@ -34,7 +34,7 @@ class WechatManager(object):
             # if self.msg.sender.wxid not in self.Sessions:
             #     session = dict(sid=self.msg.sender.wxid, sender=self.msg.sender)
             #     self.Sessions.append(session)
-            receive_msg_handler(self.slack_manager, msg, self.Sessions)
+            receive_msg_handler(self.slack_manager, msg, self.sessions)
 
     def _prepare_friends(self, bot):
         self.friends = bot.friends()

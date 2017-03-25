@@ -5,10 +5,15 @@ def receive_msg_handler(slack_manager, msg, Sessions):
         session = dict(sid=msg.sender.wxid, sender=msg.sender)
         Sessions.append(session)
 
+    rtv = slack_manager.open_private_group(name=msg.sender.name, identity_id=msg.sender.wxid)
+    if not rtv:
+        print('cant create private group')
+        return False
+
     sender = msg.sender # sender object
     text = msg.text
     msg_type = msg.type
-    gid = 'G4LQR11LH'
+    gid = rtv
     as_user = 'false'
     user_name = msg.sender.name + ' -- '+ msg.sender.wxid
     icon_url = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png'
