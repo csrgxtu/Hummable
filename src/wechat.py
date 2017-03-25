@@ -19,7 +19,7 @@ class WechatManager(object):
     chats = list()
 
 
-    def __init__(self, slack_manager, receive_msg_handler):
+    def __init__(self, slack_manager, receive_msg_handler, session_storage):
         bot = Bot()
         self.bot = bot
         self._prepare_friends(bot)
@@ -31,10 +31,7 @@ class WechatManager(object):
         @bot.register()
         def receive_msg(msg):
             self.msg = msg
-            # if self.msg.sender.wxid not in self.Sessions:
-            #     session = dict(sid=self.msg.sender.wxid, sender=self.msg.sender)
-            #     self.Sessions.append(session)
-            receive_msg_handler(self.slack_manager, msg, self.sessions)
+            receive_msg_handler(self.slack_manager, msg, session_storage)
 
     def _prepare_friends(self, bot):
         self.friends = bot.friends()

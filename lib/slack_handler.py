@@ -1,14 +1,19 @@
 
-def receive_msg_handler(slack_manager, msg, Sessions):
+def receive_msg_handler(slack_manager, msg, sessions):
     """ when received msg from wx, post this msg to slack """
-    if msg.sender.wxid not in Sessions:
-        session = dict(sid=msg.sender.wxid, sender=msg.sender)
-        Sessions.append(session)
+    # if msg.sender.wxid not in sessions:
+    #     session = dict(sid=msg.sender.wxid, sender=msg.sender)
+    #     Sessions.append(session)
 
-    rtv = slack_manager.open_private_group(name=msg.sender.name, identity_id=msg.sender.wxid)
+    rtv = slack_manager.open_private_group(name=msg.sender.name, identity_id=msg.sender.wxid, sessions=sessions)
     if not rtv:
         print('cant create private group')
         return False
+
+    for session in sessions:
+        if session.get('sid') == rtv:
+            session['wxid'] = msg.sender.wxid
+            session['wx_user'] = msg.sender
 
     sender = msg.sender # sender object
     text = msg.text
