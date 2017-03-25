@@ -21,12 +21,16 @@ def main():
     # client
     def send_msg_handler(msg):
         # split wxid msg
-        wxid, text = msg.split(' ', 1)
-        # query WechatSessions
-        for session in WechatSessions:
-            if wxid == session.get('sid'):
-                sender = session.get('sender')
-                sender.send(text)
+        if ' ' in msg:
+            wxid, text = msg.split(' ', 1)
+            # query WechatSessions
+            for session in WechatSessions:
+                if wxid == session.get('sid'):
+                    sender = session.get('sender')
+                    sender.send(text)
+        else:
+            print(msg)
+
     slack_manager = SlackManager(token)
 
     # wechat
