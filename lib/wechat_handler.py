@@ -10,8 +10,11 @@ def send_msg_handler(msg, channel_id, sessions, slack_manager):
 
     for session in sessions:
         if session.get('sid') and session.get('sid') == channel_id and session.get('wx_user'):
-            session.get('wx_user').send(msg)
-            return True
+            try:
+                session.get('wx_user').send(msg)
+                return True
+            except:
+                return False
 
     print('not found mathed session')
 
@@ -25,7 +28,7 @@ def send_msg_and_open_private_group(target, msg, sessions, slack_manager):
                 session['sid'] = rtv
                 session['slack_group'] = slack_group
                 return True
-            
+
     return False
 
 def get_private_group_from_session(sid, sessions):

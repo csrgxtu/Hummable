@@ -64,6 +64,8 @@ class SlackManager(object):
                     else:
                         return False
                 else:
+                    if not session.get('slack_group'):
+                        break
                     return session.get('slack_group').get('id')
         return self.create_private_group(name, sessions)
 
