@@ -12,7 +12,7 @@ class WechatManager(object):
     slack_manager = None
     bot = None
     msg = None
-    sessions = list()
+    sessions = list()   # hold session between hummable and wechat {sid, sender}
     friends = list()
     groups = list()
     mps = list()

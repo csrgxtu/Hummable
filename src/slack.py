@@ -17,17 +17,11 @@ class SlackManager(object):
     slack_client = None
     rtm = None
 
-    sessions = list()   # hold private sessions between slack and hummable
+    sessions = list()   # hold private sessions between slack and hummable {identity_id, group}
 
     def __init__(self, token):
         self.token = token
         self.set_private_groups()
-        # self.pp = pprint.PrettyPrinter(indent=2)
-        # self.pp(self.sessions)
-        # print(json.dumps(self.sessions, indent=2))
-
-
-        # self.slack_client = SlackClient(token)
 
     def create_rtm_client(self, send_msg_handler, WechatSessions):
         self.rtm_client = SlackClient(self.token)
