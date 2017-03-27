@@ -27,12 +27,20 @@ class SlackManager(object):
         if self.rtm_client.rtm_connect():
             # to do
             while True:
-                rtv = self.rtm_client.rtm_read()
-                if len(rtv) != 0:
-                    if not rtv[0].get('subtype') and rtv[0].get('type') == 'message':
-                        print(rtv[0])
-                        send_msg_handler(rtv[0].get('text'), rtv[0].get('channel'), sessions, slack_manager)
-                time.sleep(1)
+                try:
+                    rtv = self.rtm_client.rtm_read()
+                    if len(rtv) != 0:
+                        if not rtv[0].get('subtype') and rtv[0].get(
+                        'type') == 'message':
+                            print(rtv[0])
+                            send_msg_handler(rtv[0].get('text'),
+                            rtv[0].get('channel'), sessions,
+                            slack_manager)
+                            time.sleep(1)
+                except WebSocketConnectionClosedException:
+                    time.sleep(5)
+                    rtv = self.rtm_client.rtm_connect()
+
         else:
             # warning here
             return False
@@ -42,7 +50,6 @@ class SlackManager(object):
     def api_test(self):
         rtv = self.slack_client.api_call('api.test')
         return rtv
-
 
     # test auth of this token info
     # return dict
@@ -55,11 +62,15 @@ class SlackManager(object):
         """ open or create a private group """
         # first, check if identity_id and name already exists in
         for session in sessions:
-            if session.get('wxid') == wxid or (session.get('slack_group') and session.get('slack_group').get('name') == name.lower()):
+            if session.get('wxid') == wxid or (
+                    session.get('slack_group') and
+                    session.get('slack_group').get('name') == name.lower()):
                 # open it
-                if session.get('slack_group') and session.get('slack_group').get('is_archived') == True:
+                if session.get('slack_group') and session.get(
+                        'slack_group').get('is_archived') == True:
                     # open id
-                    if self._unarchive_private_group(session.get('slack_group').get('id')):
+                    if self._unarchive_private_group(
+                            session.get('slack_group').get('id')):
                         return session.get('slack_group').get('id')
                     else:
                         return False
@@ -106,7 +117,10 @@ class SlackManager(object):
         if body.status_code == 200:
             rtv = json.loads(body.text)
             if rtv.get('ok') is True:
-                sessions.append(dict(sid=rtv.get('group').get('id'), slack_group=rtv.get('group')))
+                sessions.append(
+                    dict(
+                        sid=rtv.get('group').get('id'),
+                        slack_group=rtv.get('group')))
                 return rtv.get('group').get('id')
             else:
                 return False
@@ -127,14 +141,16 @@ class SlackManager(object):
         else:
             return False
 
-
     def set_private_sessions(self):
         url = self.api_prefix + 'groups.list?token=' + self.token
         body = requests.get(url)
         if body.status_code == 200:
             rtv = json.loads(body.text)
             if rtv.get('ok') is True:
-                sessions = [dict(sid=group.get('id'), slack_group=group) for group in rtv.get('groups')]
+                sessions = [
+                    dict(sid=group.get('id'), slack_group=group)
+                    for group in rtv.get('groups')
+                ]
                 return sessions
             else:
                 return False
@@ -162,7 +178,13 @@ class SlackManager(object):
     # send msg to a private group
     # return boolean
     def send_msg_to_private_group(self, gid, msg, as_user, username, icon_url):
-        data = dict(channel=gid, text=msg, as_user='false', username=username, icon_url=icon_url, token=self.token)
+        data = dict(
+            channel=gid,
+            text=msg,
+            as_user='false',
+            username=username,
+            icon_url=icon_url,
+            token=self.token)
         url = self.api_prefix + 'chat.postMessage'
         body = requests.get(url, params=data)
         if body.status_code == 200:

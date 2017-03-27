@@ -23,10 +23,12 @@ def main():
     slack_manager = SlackManager(token)
     wx_slack_sessions = slack_manager.set_private_sessions()
 
-    wechat_manager = WechatManager(slack_manager, receive_msg_handler, wx_slack_sessions)
+    wechat_manager = WechatManager(slack_manager, receive_msg_handler,
+                                   wx_slack_sessions)
 
     # create slack rtm client
-    slack_manager.create_rtm_client(send_msg_handler, wx_slack_sessions, slack_manager)
+    slack_manager.create_rtm_client(send_msg_handler, wx_slack_sessions,
+                                    slack_manager)
 
     # embed(shell='ipython', banner='Being hummable') #wait infinite, or programme will exit right away
 

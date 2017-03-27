@@ -17,11 +17,10 @@ class WechatManager(object):
     mps = list()
     chats = list()
 
-
     def __init__(self, slack_manager, receive_msg_handler, session_storage):
         # open default wechat group in slack for commands
-        slack_manager.open_private_group(name='wechat', wxid='somerandomid', sessions=session_storage)
-
+        slack_manager.open_private_group(
+            name='wechat', wxid='somerandomid', sessions=session_storage)
 
         bot = Bot()
         self.bot = bot
@@ -37,7 +36,6 @@ class WechatManager(object):
 
         for group in self.groups:
             session_storage.append(dict(wxid=group.wxid, wx_user=group))
-
 
         @bot.register()
         def receive_msg(msg):
