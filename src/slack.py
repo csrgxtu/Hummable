@@ -37,7 +37,7 @@ class SlackManager(object):
                             rtv[0].get('channel'), sessions,
                             slack_manager)
                             time.sleep(1)
-                except WebSocketConnectionClosedException:
+                except:
                     time.sleep(5)
                     rtv = self.rtm_client.rtm_connect()
 
