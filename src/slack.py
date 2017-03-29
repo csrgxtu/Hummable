@@ -36,7 +36,8 @@ class SlackManager(object):
                             send_msg_handler(rtv[0].get('text'),
                             rtv[0].get('channel'), sessions,
                             slack_manager)
-                            time.sleep(1)
+
+                    time.sleep(1)
                 except:
                     time.sleep(5)
                     rtv = self.rtm_client.rtm_connect()
