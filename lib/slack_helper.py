@@ -6,18 +6,15 @@
 # Date: 21/March/2017
 from slackclient import SlackClient
 import requests
-import pprint
 import time
 import json
 
 
-class SlackManager(object):
+class SlackHelper(object):
     api_prefix = 'https://slack.com/api/'
     token = None
     slack_client = None
     rtm = None
-
-    # sessions = list()   # hold private sessions between slack and hummable {identity_id, group}
 
     def __init__(self, token):
         self.token = token
