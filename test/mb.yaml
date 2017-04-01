@@ -1,0 +1,24 @@
+listeners:
+    default:
+        max-connections: 50000
+        type: tcp
+    my-tcp-1:
+        bind: 127.0.0.1:1883
+    my-tcp-2:
+        bind: 1.2.3.4:1884
+        max-connections: 1000
+    my-tcp-ssl-1:
+        bind: 127.0.0.1:8885
+        ssl: on
+        cafile: /some/cafile
+        capath: /some/folder
+        capath: certificate data
+        certfile: /some/certfile
+        keyfile: /some/key
+    my-ws-1:
+        bind: 0.0.0.0:8080
+        type: ws
+timeout-disconnect-delay: 2
+auth:
+    plugins: ['auth.anonymous'] #List of plugins to activate for authentication among all registered plugins
+    allow-anonymous: true
