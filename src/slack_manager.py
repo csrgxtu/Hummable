@@ -1,7 +1,8 @@
 from lib.slack_helper import SlackHelper
 import asyncio
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
-from hbmqtt.mqtt.constants import QOS_1, QOS_2
+from hbmqtt.mqtt.constants import QOS_1
+from conf import settings
 
 
 class SlackManager(object):
@@ -19,9 +20,9 @@ class SlackManager(object):
 	def subcriber(self):
 		""" subscribe mqtt topic /slack_in, listen for incoming msgs """
 		C = MQTTClient()
-		yield from C.connect('mqtt://127.0.0.1:1883/')
+		yield from C.connect(settings.Slack_Url)
 		yield from C.subscribe([
-			('/slack_in', QOS_1),
+			(settings.Slack_In_Topic, QOS_1),
 		])
 		try:
 			while True:
@@ -29,7 +30,7 @@ class SlackManager(object):
 				packet = message.publish_packet
 				print("%d:  %s => %s" % (0, packet.variable_header.topic_name, str(packet.payload.data)))
 		except ClientException as ce:
-			yield from C.unsubscribe(['/slack_in'])
+			yield from C.unsubscribe([settings.Slack_In_Topic])
 			yield from C.disconnect()
 			print("Client exception: %s" % ce)
 
@@ -38,8 +39,8 @@ class SlackManager(object):
 		""" publish msg to mqtt topic /slack_out """
 		try:
 			C = MQTTClient()
-			yield from C.connect('mqtt://127.0.0.1:1883/')
-			yield from C.publish('/slack_out', bytes(msg, 'utf-8'), qos=0x00)
+			yield from C.connect(settings.Slack_Url)
+			yield from C.publish(settings.Slack_Out_Topic, bytes(msg, 'utf-8'), qos=0x00)
 			yield from C.disconnect()
 		except ConnectException as ce:
 			asyncio.get_event_loop().stop()

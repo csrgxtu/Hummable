@@ -1,0 +1,3 @@
+Slack_Url = 'mqtt://127.0.0.1:1883'
+Slack_In_Topic = '/slack_in'
+Slack_Out_Topic = '/slack_out'
