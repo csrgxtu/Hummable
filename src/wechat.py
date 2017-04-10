@@ -6,11 +6,14 @@
 # Date: 21/March/2017
 # Desc: wechat logic
 from wxpy import *
-from hbmqtt.client import MQTTClient, ClientException
-from hbmqtt.mqtt.constants import QOS_1
+import paho.mqtt.client as mqtt
 import asyncio
 from conf import settings
 from lib.logger import logger
+import json
+from model.message import Message
+import time
+
 
 class WechatManager(object):
 	slack_manager = None
@@ -26,50 +29,64 @@ class WechatManager(object):
 		self._prepare_groups(bot)
 		self._prepare_mps(bot)
 
-		# listen slack out topic, get msg and send 2 wechat
-		asyncio.async(self.mq_sub())
-
 		# get wechat msg and send to slack in topic
 		@bot.register()
 		def receive_msg(msg):
-			print("msg: " + msg.text)
+			logger.info("[WechatManager.init.receive_msg]" + msg.text)
+			message = Message('wechat', msg.sender.wxid, msg.sender.name, None, msg.text)
+			self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
 
-	@asyncio.coroutine
+		logger.info('####init')
+		# time.sleep(10)
+		# asyncio.async(self.mq_sub())
+		self.mq_sub()
+
 	def mq_pub(self, msg):
-		conn = MQTTClient()
-		yield from conn.connect(settings.MQTT_URL)
-		tasks = [
-			asyncio.async(conn.publish(settings.Slack_In_Topic, msg.encode()))
-		]
-		yield from asyncio.wait(tasks)
-		yield from conn.disconnect()
+		client = mqtt.Client()
+		client.connect(settings.HOST)
+		client.publish(settings.Slack_In_Topic, json.dumps(msg))
+		client.disconnect()
 
-	@asyncio.coroutine
+	# @asyncio.coroutine
 	def mq_sub(self):
-		conn = MQTTClient()
-		yield from conn.connect(settings.MQTT_URL)
-		yield from conn.subscribe([
-			(settings.Slack_Out_Topic, QOS_1)
-		])
+		logger.info('###### in mq_sub')
 		try:
-			while True:
-				message = yield from conn.deliver_message()
-				packet = message.publish_packet
-				# print(packet.payload.data.decode())
-				self.send_msg(packet.payload.data.decode())
-			# yield from conn.unsubscribe([settings.Slack_Out_Topic])
-			# yield from conn.disconnect()
-		except ClientException as ce:
-			print(ce)
+			client = mqtt.Client()
+			client.on_message = self.send_msg
+			client.connect(settings.HOST)
+			client.subscribe(settings.Slack_Out_Topic)
+			logger.info('mq_usb ok')
+			client.loop_forever()
+		except ConnectionRefusedError as e:
+			logger.warn(e)
 
-	@asyncio.coroutine
-	def send_msg(self, msg):
+	# @asyncio.coroutine
+	# def mq_sub(self):
+	# 	conn = MQTTClient()
+	# 	yield from conn.connect(settings.MQTT_URL)
+	# 	yield from conn.subscribe([
+	# 		(settings.Slack_Out_Topic, QOS_1)
+	# 	])
+	# 	try:
+	# 		while True:
+	# 			message = yield from conn.deliver_message()
+	# 			packet = message.publish_packet
+	# 			# print(packet.payload.data.decode())
+	# 			self.send_msg(packet.payload.data.decode())
+	# 			logger.info('[WechatManager.mq_sub]' + packet.payload.data.decode())
+	# 		# yield from conn.unsubscribe([settings.Slack_Out_Topic])
+	# 		# yield from conn.disconnect()
+	# 	except ClientException as ce:
+	# 		print(ce)
+
+	# @asyncio.coroutine
+	def send_msg(self, client, obj, msg):
 		# check if wechat msg
 
 		# find the target
 
 		# send it
-		logger.debug(msg)
+		logger.info(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 
 	def _prepare_friends(self, bot):
 		self.friends = bot.friends()
