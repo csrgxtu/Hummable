@@ -20,16 +20,19 @@ class WechatManager(object):
 	mps = list()
 
 	def __init__(self):
-		# bot = Bot()
-		# self.bot = bot
-		# self._prepare_friends(bot)
-		# self._prepare_groups(bot)
-		# self._prepare_mps(bot)
-		#
-		# @bot.register()
-		# def receive_msg(msg):
-		#     print("msg: " + msg.text)
-		pass
+		bot = Bot()
+		self.bot = bot
+		self._prepare_friends(bot)
+		self._prepare_groups(bot)
+		self._prepare_mps(bot)
+
+		# listen slack out topic, get msg and send 2 wechat
+		asyncio.async(self.mq_sub())
+
+		# get wechat msg and send to slack in topic
+		@bot.register()
+		def receive_msg(msg):
+			print("msg: " + msg.text)
 
 	@asyncio.coroutine
 	def mq_pub(self, msg):
@@ -59,7 +62,7 @@ class WechatManager(object):
 		except ClientException as ce:
 			print(ce)
 
-	@classmethod
+	@asyncio.coroutine
 	def send_msg(self, msg):
 		# check if wechat msg
 
