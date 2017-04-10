@@ -18,7 +18,7 @@ def uptime_coro():
         for i in range(1, 100):
             message = yield from C.deliver_message()
             packet = message.publish_packet
-            print("%d:  %s => %s" % (i, packet.variable_header.topic_name, str(packet.payload.data)))
+            print("%d:  %s => %s" % (i, packet.variable_header.topic_name, str(packet.payload.data.decode())))
         yield from C.unsubscribe(['/slack_in'])
         yield from C.disconnect()
     except ClientException as ce:

@@ -57,4 +57,4 @@ if __name__ == '__main__':
     # formatter = "%(message)s"
     # logging.basicConfig(level=logging.DEBUG, format=formatter)
     asyncio.get_event_loop().run_until_complete(test_coro())
-    asyncio.get_event_loop().run_until_complete(test_coro2())
+    # asyncio.get_event_loop().run_until_complete(test_coro2())

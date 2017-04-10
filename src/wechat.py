@@ -6,64 +6,76 @@
 # Date: 21/March/2017
 # Desc: wechat logic
 from wxpy import *
-
+from hbmqtt.client import MQTTClient, ClientException
+from hbmqtt.mqtt.constants import QOS_1
+import asyncio
+from conf import settings
+from lib.logger import logger
 
 class WechatManager(object):
-    slack_manager = None
-    bot = None
-    msg = None
-    friends = list()
-    groups = list()
-    mps = list()
-    chats = list()
+	slack_manager = None
+	bot = None
+	friends = list()
+	groups = list()
+	mps = list()
 
-    def __init__(self, slack_manager, receive_msg_handler, session_storage):
-        # open default wechat group in slack for commands
-        slack_manager.open_private_group(
-            name='wechat', wxid='somerandomid', sessions=session_storage)
+	def __init__(self):
+		# bot = Bot()
+		# self.bot = bot
+		# self._prepare_friends(bot)
+		# self._prepare_groups(bot)
+		# self._prepare_mps(bot)
+		#
+		# @bot.register()
+		# def receive_msg(msg):
+		#     print("msg: " + msg.text)
+		pass
 
-        bot = Bot()
-        self.bot = bot
-        self._prepare_friends(bot)
-        self._prepare_groups(bot)
-        self._prepare_mps(bot)
-        self._parepare_chats(bot)
-        self.slack_manager = slack_manager
+	@asyncio.coroutine
+	def mq_pub(self, msg):
+		conn = MQTTClient()
+		yield from conn.connect(settings.MQTT_URL)
+		tasks = [
+			asyncio.async(conn.publish(settings.Slack_In_Topic, msg.encode()))
+		]
+		yield from asyncio.wait(tasks)
+		yield from conn.disconnect()
 
-        # add users, groups into sessions
-        for friend in self.friends:
-            session_storage.append(dict(wxid=friend.wxid, wx_user=friend))
+	@asyncio.coroutine
+	def mq_sub(self):
+		conn = MQTTClient()
+		yield from conn.connect(settings.MQTT_URL)
+		yield from conn.subscribe([
+			(settings.Slack_Out_Topic, QOS_1)
+		])
+		try:
+			while True:
+				message = yield from conn.deliver_message()
+				packet = message.publish_packet
+				# print(packet.payload.data.decode())
+				self.send_msg(packet.payload.data.decode())
+			# yield from conn.unsubscribe([settings.Slack_Out_Topic])
+			# yield from conn.disconnect()
+		except ClientException as ce:
+			print(ce)
 
-        for group in self.groups:
-            session_storage.append(dict(wxid=group.wxid, wx_user=group))
+	@classmethod
+	def send_msg(self, msg):
+		# check if wechat msg
 
-        @bot.register()
-        def receive_msg(msg):
-            self.msg = msg
-            receive_msg_handler(self.slack_manager, msg, session_storage)
+		# find the target
 
-    def _prepare_friends(self, bot):
-        self.friends = bot.friends()
-        return
+		# send it
+		logger.debug(msg)
 
-    def _prepare_groups(self, bot):
-        self.groups = bot.groups()
-        return
+	def _prepare_friends(self, bot):
+		self.friends = bot.friends()
+		return
 
-    def _prepare_mps(self, bot):
-        self.mps = bot.mps()
-        return
+	def _prepare_groups(self, bot):
+		self.groups = bot.groups()
+		return
 
-    def _parepare_chats(self, bot):
-        self.chats = bot.chats()
-        return
-
-    def qr_callback(self, uuid, status, qrcode):
-        print(uuid)
-        return
-
-    def login_callback(self):
-        return
-
-    def logout_callback(self):
-        return
+	def _prepare_mps(self, bot):
+		self.mps = bot.mps()
+		return
