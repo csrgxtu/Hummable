@@ -1,7 +1,7 @@
 import logging
 import asyncio
 from hbmqtt.broker import Broker
-
+from conf import settings
 
 class MqBroker(object):
 	""" message queue broker server """
@@ -9,14 +9,14 @@ class MqBroker(object):
 	config = {
 		'listeners': {
 			'default': {
-				'max-connections': 128,
+				'max-connections': settings.MAX_CONNECTIONS,
 				'type': 'tcp'
 			},
 			'my-tcp-1': {
-				'bind': '127.0.0.1:1883'
+				'bind': settings.BIND
 			}
 		},
-		'timeout-disconnect-delay': 2,
+		'timeout-disconnect-delay': settings.TIMEOUT_DISCONNECT_DELAY,
 		'auth': {
 			'plugins': ['auth.anonymous'],
 			'allow-anonymous': True

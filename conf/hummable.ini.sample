@@ -12,3 +12,7 @@ password=
 [email]
 address=
 password=
+
+[MQ]
+max_connections = 128
+bind = 127.0.0.1:1883
