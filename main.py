@@ -1,9 +1,13 @@
 from src.mq_broker import MqBroker
+import asyncio
 
 
 def main():
-    # start msg queue broker in main process
-    mb = MqBroker()
+	# asyncio.async(MqBroker())
+	mq = MqBroker()
+	print("Message Broker started...")
+	asyncio.get_event_loop().run_forever()
+
 
 if __name__ == '__main__':
-    main()
+	main()

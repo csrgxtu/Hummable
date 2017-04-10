@@ -12,7 +12,7 @@ class MqBroker(object):
 				'max-connections': settings.MAX_CONNECTIONS,
 				'type': 'tcp'
 			},
-			'my-tcp-1': {
+			'hummable': {
 				'bind': settings.BIND
 			}
 		},
@@ -26,8 +26,7 @@ class MqBroker(object):
 	def __init__(self):
 		formatter = "[%(asctime)s] :: %(levelname)s :: %(name)s :: %(message)s"
 		logging.basicConfig(level=logging.INFO, format=formatter)
-		asyncio.get_event_loop().run_until_complete(self.broker_coro())
-		asyncio.get_event_loop().run_forever()
+		asyncio.async(self.broker_coro())
 
 	@asyncio.coroutine
 	def broker_coro(self):
