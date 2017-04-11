@@ -1,27 +1,23 @@
 from src.wechat import WechatManager
-from src.gmail import GmailManager
+from src.gmail import new_mail
 from lib.logger import logger
-import asyncio
 from conf import settings
+import multiprocessing
 
 
 def main():
-	tasks = []
-	loop = asyncio.get_event_loop()
-
+	jobs = []
 	# start wechat manager
 	# wm = WechatManager()
 	# print("wechat manager started")
 
 	# start gmail manager
-	gm = GmailManager(settings.Gmail_Address, settings.Gmail_Password)
-	tasks.append(asyncio.async(gm.new_mail()))
-	# tasks.append(asyncio.async(gm.mq_sub()))
+	jobs.append(multiprocessing.Process(target=new_mail))
 
 	# start slack manager
 
-	loop.run_until_complete(asyncio.wait(tasks))
-
+	for job in jobs:
+		job.start()
 
 if __name__ == '__main__':
 	main()
