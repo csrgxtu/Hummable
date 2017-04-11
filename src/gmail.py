@@ -55,18 +55,20 @@ class GmailManager(object):
 		""" get new mail """
 		while True:
 			logger.info('new mail')
-			res = requests.get(self.feed_url, auth=(self.address, self.password))
-			if res.status_code != 200:
-				logger.warn('new_mail' + str(res.status_code))
-			else:
-				# logger.info(res.text)
-				rtv = feedparser.parse(res.text)
-				mails = rtv.get('entries')
-				for mail in mails:
-					message = Message('gmail', mail.get('author_detail').get('email'), mail.get('author'), None, mail.get('title'))
-					logger.info(json.dumps(message, default=lambda o: o.__dict__))
-					self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
-					logger.info('##### fuck')
+			res = requests.get('http://github.com/csrgxtu')
+			self.mq_pub(dict(code=res.status_code))
+			# res = requests.get(self.feed_url, auth=(self.address, self.password))
+			# if res.status_code != 200:
+			# 	logger.warn('new_mail' + str(res.status_code))
+			# else:
+			# 	# logger.info(res.text)
+			# 	rtv = feedparser.parse(res.text)
+			# 	mails = rtv.get('entries')
+			# 	for mail in mails:
+			# 		message = Message('gmail', mail.get('author_detail').get('email'), mail.get('author'), None, mail.get('title'))
+			# 		logger.info(json.dumps(message, default=lambda o: o.__dict__))
+			# 		self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
+			# 		logger.info('##### fuck')
 
 			time.sleep(3)
 
@@ -76,8 +78,8 @@ class GmailManager(object):
 			client = mqtt.Client()
 			client.on_message = self.send_msg
 			client.connect(settings.HOST)
-			client.loop_start()
 			client.subscribe(settings.Slack_Out_Topic)
+			client.loop_forever()
 		except ConnectionRefusedError as e:
 			logger.warn(e)
 

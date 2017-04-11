@@ -1,5 +1,5 @@
 from src.wechat import WechatManager
-from src.gmail import new_mail
+from src.gmail import GmailManager
 from lib.logger import logger
 from conf import settings
 import multiprocessing
@@ -12,7 +12,9 @@ def main():
 	# print("wechat manager started")
 
 	# start gmail manager
-	jobs.append(multiprocessing.Process(target=new_mail))
+	gm = GmailManager(settings.Gmail_Address, settings.Gmail_Password)
+	jobs.append(multiprocessing.Process(target=gm.new_mail))
+	jobs.append(multiprocessing.Process(target=gm.mq_sub))
 
 	# start slack manager
 
