@@ -7,6 +7,7 @@ from model.message import Message
 import json
 import time
 import asyncio
+import sys
 
 
 class GmailManager(object):
@@ -40,15 +41,14 @@ class GmailManager(object):
 		client.publish(settings.Slack_In_Topic, json.dumps(msg))
 		client.disconnect()
 
+	@asyncio.coroutine
 	def mq_sub(self):
-		logger.info('###### in mq_sub')
 		try:
 			client = mqtt.Client()
 			client.on_message = self.send_msg
 			client.connect(settings.HOST)
+			client.loop_start()
 			client.subscribe(settings.Slack_Out_Topic)
-			logger.info('mq_usb ok')
-			client.loop_forever()
 		except ConnectionRefusedError as e:
 			logger.warn(e)
 
@@ -58,4 +58,5 @@ class GmailManager(object):
 		# find the target
 
 		# send it
+		sys.stdout.writelines(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 		logger.info(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
