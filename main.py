@@ -12,7 +12,7 @@ def main():
 	# print("wechat manager started")
 
 	# start gmail manager
-	gm = GmailManager('archer.li@shopeemobile.com', 'whatthefuck')
+	gm = GmailManager(setting.Gamil_Address, settings.Gmail_Password)
 	asyncio.async(gm.new_mail())
 	logger.info('gmail manager started...')
 
