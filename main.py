@@ -1,20 +1,20 @@
 from src.mq_broker import MqBroker
 from src.wechat import WechatManager
+from src.gmail import GmailManager
+from lib.logger import logger
 import asyncio
 import multiprocessing
 
 
 def main():
-	# start message broker
-	p = multiprocessing.Process(target=MqBroker)
-	p.start()
-	# mq = MqBroker()
-	print("Message Broker started...")
-
 	# start wechat manager
-	# asyncio.async(WechatManager())
-	wm = WechatManager()
-	print("wechat manager started")
+	# wm = WechatManager()
+	# print("wechat manager started")
+
+	# start gmail manager
+	gm = GmailManager('archer.li@shopeemobile.com', 'whatthefuck')
+	asyncio.async(gm.new_mail())
+	logger.info('gmail manager started...')
 
 	# start slack manager
 

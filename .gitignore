@@ -3,3 +3,4 @@ hummable.ini
 *.pyc
 .idea
 settings.py
+nohup.out
