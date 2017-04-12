@@ -4,8 +4,8 @@ import email as Email
 
 class Mail():
 	def __init__(self):
-		self.user = 'archer.li@shopeemobile.com'
-		self.password = 'whatthefuck'
+		self.user = '*'
+		self.password = 'fuck'
 		# self.ser = serial.Serial('/dev/tty.usbmodem621', 9600)
 		self.M = imaplib.IMAP4_SSL('imap.gmail.com', '993')
 		self.M.login(self.user, self.password)

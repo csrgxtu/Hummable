@@ -4,6 +4,7 @@ from conf import settings
 import imaplib
 from model.message import Message
 import json
+import time
 
 
 class GmailManager(object):
@@ -36,11 +37,15 @@ class GmailManager(object):
 		email_ids = str(email_ids[0])[1:].replace("'", "").split(' ')
 		rtv = self.get_mail(email_ids)
 		for email in rtv:
-			print(email.get('From'), email.get('Subject'))
 			message = Message('gmail', email.get('From'), email.get('From'), None, email.get('Subject'))
-			logger.info('before self.mq_pub')
 			self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
-			logger.info('after self.mq_pub')
+
+	def new_mail(self):
+		while True:
+			logger.info('before self.check_mail')
+			self.check_mail()
+			logger.info('after self.check_mail')
+			time.sleep(32)
 
 	def mq_pub(self, msg):
 		client = mqtt.Client()
