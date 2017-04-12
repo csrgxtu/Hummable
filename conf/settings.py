@@ -13,8 +13,8 @@ TIMEOUT_DISCONNECT_DELAY = 2
 HOST = '127.0.0.1'
 
 # Gmail
-Gmail_Address = 'archer.li@shopeemobile.com'
+Gmail_Address = '*'
 Gmail_Password = 'whatthefuck'
 
 # slack
-Token = 'xoxp-156517955189-157110150294-159746005766-b632d328f914e6016566b1240dd9b294'
+Token = '*'
