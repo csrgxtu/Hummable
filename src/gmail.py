@@ -1,77 +1,52 @@
-import feedparser
-import requests
 import paho.mqtt.client as mqtt
 from lib.logger import logger
 from conf import settings
+import imaplib
 from model.message import Message
 import json
-import sys
-import time
 
-feed_url = 'https://mail.google.com/gmail/feed/atom'
-
-
-def mq_pub(msg):
-	client = mqtt.Client()
-	client.connect(settings.HOST)
-	client.publish(settings.Slack_In_Topic, json.dumps(msg))
-	client.disconnect()
-
-
-def new_mail():
-	""" get new mail """
-	while True:
-		logger.info('new mail')
-		res = requests.get(feed_url, auth=(settings.Gmail_Address, settings.Gmail_Password))
-		if res.status_code != 200:
-			logger.warn('new_mail' + str(res.status_code))
-		else:
-			# logger.info(res.text)
-			rtv = feedparser.parse(res.text)
-			mails = rtv.get('entries')
-			for mail in mails:
-				message = Message('gmail', mail.get('author_detail').get('email'), mail.get('author'), None, mail.get('title'))
-				logger.info(json.dumps(message, default=lambda o: o.__dict__))
-				# mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
-				logger.info('##### fuck')
-
-		time.sleep(3)
 
 class GmailManager(object):
 	""" Gmail client, login and query the new mail """
-	feed_url = 'https://mail.google.com/gmail/feed/atom'
 
 	def __init__(self, address, password):
 		self.address = address
 		self.password = password
+		self.M = imaplib.IMAP4_SSL('imap.gmail.com', '993')
+		self.M.login(self.address, self.password)
+
+	def get_mail(self, email_ids):
+		rtv = []
+		for e_id in email_ids:
+			try:
+				_, response = self.M.fetch(e_id, '(body[header.fields (from)])')
+				From = str(response[0][1]).split(' <')[1][0:-10]
+				_, response = self.M.fetch(e_id, '(body[header.fields (subject)])')
+				Subject = str(response[0][1][9:])[2:-9]
+				rtv.append(dict(From=From, Subject=Subject))
+			except:
+				continue
+
+		return rtv
+
+	def check_mail(self):
+		self.M.select('INBOX')
+		self.M.status('INBOX', "(UNSEEN)")
+		status, email_ids = self.M.search(None, '(UNSEEN)')
+		email_ids = str(email_ids[0])[1:].replace("'", "").split(' ')
+		rtv = self.get_mail(email_ids)
+		for email in rtv:
+			print(email.get('From'), email.get('Subject'))
+			message = Message('gmail', email.get('From'), email.get('From'), None, email.get('Subject'))
+			logger.info('before self.mq_pub')
+			self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
+			logger.info('after self.mq_pub')
 
 	def mq_pub(self, msg):
 		client = mqtt.Client()
 		client.connect(settings.HOST)
 		client.publish(settings.Slack_In_Topic, json.dumps(msg))
 		client.disconnect()
-
-	def new_mail(self):
-		""" get new mail """
-		while True:
-			logger.info('new mail')
-			res = requests.get('http://github.com/csrgxtu')
-			self.mq_pub(dict(code=res.status_code))
-			# res = requests.get(self.feed_url, auth=(self.address, self.password))
-			# if res.status_code != 200:
-			# 	logger.warn('new_mail' + str(res.status_code))
-			# else:
-			# 	# logger.info(res.text)
-			# 	rtv = feedparser.parse(res.text)
-			# 	mails = rtv.get('entries')
-			# 	for mail in mails:
-			# 		message = Message('gmail', mail.get('author_detail').get('email'), mail.get('author'), None, mail.get('title'))
-			# 		logger.info(json.dumps(message, default=lambda o: o.__dict__))
-			# 		self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
-			# 		logger.info('##### fuck')
-
-			time.sleep(3)
-
 
 	def mq_sub(self):
 		try:
@@ -89,5 +64,4 @@ class GmailManager(object):
 		# find the target
 
 		# send it
-		sys.stdout.writelines(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 		logger.info(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))

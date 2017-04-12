@@ -21,8 +21,9 @@ class Mail():
 		subjects = []
 		for e_id in email_ids:
 			_, response = self.M.fetch(e_id, '(body[header.fields (from)])')
-			print(response)
+			print('From', str(response[0][1]).split(' <')[1][0:-10])
 			_, response = self.M.fetch(e_id, '(body[header.fields (subject)])')
+			print('Subject', str(response[0][1][9:])[2:-9])
 			subjects.append(response[0][1][9:])
 		return subjects
 
@@ -37,7 +38,8 @@ class Mail():
 		self.M.select('INBOX')
 		status, response = self.M.status('INBOX', "(UNSEEN)")
 		status, email_ids = self.M.search(None, '(UNSEEN)')
-		emails = self.get_subjects(email_ids)
+		print(str(email_ids[0])[1:].replace("'", "").split(' '))
+		emails = self.get_subjects(str(email_ids[0])[1:].replace("'", "").split(' '))
 		for email in emails:
 			print(email)
 
