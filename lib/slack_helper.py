@@ -5,6 +5,7 @@
 # Desc: slack logic
 # Date: 21/March/2017
 from slackclient import SlackClient
+from lib.logger import logger
 import requests
 import time
 import json
@@ -193,3 +194,31 @@ class SlackHelper(object):
                 return False
         else:
             return False
+
+    def get_groups(self):
+        url = self.api_prefix + 'groups.list?token=' + self.token
+        body = requests.get(url)
+        # print(body.text)
+        if body.status_code == 200:
+            try:
+                rtv = json.loads(body.text)
+                if rtv.get('ok') is True:
+                    return rtv.get('groups')
+                else:
+                    return False
+            except:
+                return False
+        else:
+            return False
+
+    def search_group(self, name):
+        name = name.replace('@', '_').replace('.', '_')
+        rtv = self.get_groups()
+        if not rtv:
+            return None
+
+        for group in rtv:
+            if group.get('name') == name:
+                return group.get('id')
+
+        return None
