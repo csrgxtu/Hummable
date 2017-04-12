@@ -25,12 +25,19 @@ class SlackManager(object):
 			logger.warn(e)
 
 	def send_msg(self, client, obj, msg):
-		logger.info(msg.payload.decode("utf-8"))
 		message = json.loads(msg.payload.decode("utf-8"))
 		logger.info(message)
-		rtv = self.slack_helper.open_private_group(message.get('src_name'))
+
+		rtv = self.slack_helper.create_private_group(message.get('src_name'))
 		logger.info(rtv)
-		rtv = self.slack_helper.send_msg_to_private_group(rtv, message.get('content'), None, message.get('src_id'), '')
-		logger.info(rtv)
+		if not rtv:
+			rtv = self.slack_helper.search_group(message.get('src_id'))
+			if not rtv:
+				logger.info('cant find in group list', message.get('src_id'))
+			self.slack_helper.send_msg_to_private_group(rtv, message.get('content'), None, message.get('src_id'), '')
+		else:
+			rtv = self.slack_helper.send_msg_to_private_group(rtv, message.get('content'), None, message.get('src_id'), '')
+			logger.info(rtv)
+
 		logger.info(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 
