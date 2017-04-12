@@ -3,10 +3,16 @@ from src.gmail import GmailManager
 from lib.logger import logger
 from conf import settings
 import multiprocessing
+from src.slack import SlackManager
 
 
 def main():
 	jobs = []
+
+	# start slack manager
+	sm = SlackManager(settings.Token)
+	jobs.append(multiprocessing.Process(target=sm.mq_sub))
+
 	# start wechat manager
 	# wm = WechatManager()
 	# print("wechat manager started")
