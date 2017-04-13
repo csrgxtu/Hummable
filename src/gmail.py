@@ -42,7 +42,7 @@ class GmailManager(object):
 				self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
 		except Exception as e:
 			logger.warn(e)
-		
+
 	def new_mail(self):
 		while True:
 			logger.info('before self.check_mail')
