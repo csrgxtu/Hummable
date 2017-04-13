@@ -25,20 +25,24 @@ class GmailManager(object):
 				_, response = self.M.fetch(e_id, '(body[header.fields (subject)])')
 				Subject = str(response[0][1][9:])[2:-9]
 				rtv.append(dict(From=From, Subject=Subject))
-			except:
+			except Exception as e:
+				logger.warn(e)
 				continue
 
 		return rtv
 
 	def check_mail(self):
-		self.M.select('INBOX')
-		self.M.status('INBOX', "(UNSEEN)")
-		status, email_ids = self.M.search(None, '(UNSEEN)')
-		email_ids = str(email_ids[0])[1:].replace("'", "").split(' ')
-		rtv = self.get_mail(email_ids)
-		for email in rtv:
-			message = Message('gmail', email.get('From'), email.get('From'), None, email.get('Subject'))
-			self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
+		try:
+			self.M.select('INBOX')
+			self.M.status('INBOX', "(UNSEEN)")
+			status, email_ids = self.M.search(None, '(UNSEEN)')
+			email_ids = str(email_ids[0])[1:].replace("'", "").split(' ')
+			rtv = self.get_mail(email_ids)
+			for email in rtv:
+				message = Message('gmail', email.get('From'), email.get('From'), None, email.get('Subject'))
+				self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
+		except Exception as e:
+			logger.warn(e)
 
 	def new_mail(self):
 		while True:

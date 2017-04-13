@@ -1,6 +1,6 @@
+conf/settings.py
 __pycache__
 hummable.ini
 *.pyc
 .idea
-settings.py
 nohup.out
