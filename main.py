@@ -14,13 +14,14 @@ def main():
 	jobs.append(multiprocessing.Process(target=sm.mq_sub))
 
 	# start wechat manager
-	# wm = WechatManager()
-	# print("wechat manager started")
+	wm = WechatManager()
+	jobs.append(multiprocessing.Process(target=wm.new_msg))
+	jobs.append(multiprocessing.Process(target=wm.mq_sub))
 
 	# start gmail manager
-	gm = GmailManager(settings.Gmail_Address, settings.Gmail_Password)
-	jobs.append(multiprocessing.Process(target=gm.new_mail))
-	jobs.append(multiprocessing.Process(target=gm.mq_sub))
+	# gm = GmailManager(settings.Gmail_Address, settings.Gmail_Password)
+	# jobs.append(multiprocessing.Process(target=gm.new_mail))
+	# jobs.append(multiprocessing.Process(target=gm.mq_sub))
 
 	# start slack manager
 
