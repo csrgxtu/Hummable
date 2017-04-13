@@ -18,3 +18,5 @@ Gmail_Password = 'whatthefuck'
 
 # slack
 Token = '*'
+
+Session_Storage_File = '/tmp/hummable_session'
