@@ -25,7 +25,8 @@ class GmailManager(object):
 				_, response = self.M.fetch(e_id, '(body[header.fields (subject)])')
 				Subject = str(response[0][1][9:])[2:-9]
 				rtv.append(dict(From=From, Subject=Subject))
-			except:
+			except Exception as e:
+				logger.warn(e)
 				continue
 
 		return rtv
