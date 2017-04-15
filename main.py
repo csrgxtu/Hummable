@@ -12,6 +12,7 @@ def main():
 	# start slack manager
 	sm = SlackManager(settings.Token)
 	jobs.append(multiprocessing.Process(target=sm.mq_sub))
+	jobs.append(multiprocessing.Process(target=sm.new_slack_msg))
 
 	# start wechat manager
 	wm = WechatManager()
