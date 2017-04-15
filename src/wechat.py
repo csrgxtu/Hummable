@@ -38,6 +38,8 @@ class WechatManager(object):
 			logger.debug(json.dumps(message, default=lambda o: o.__dict__))
 			self.mq_pub(json.loads(json.dumps(message, default=lambda o: o.__dict__)))
 
+		bot.join()
+
 	def mq_pub(self, msg):
 		client = mqtt.Client()
 		client.connect(settings.HOST)
@@ -55,15 +57,29 @@ class WechatManager(object):
 			logger.warn(e)
 
 	def send_msg(self, client, obj, msg):
-		# check if wechat msg
+		message = json.loads(msg.payload.decode("utf-8"))
+		logger.debug(message)
+		if message.get('type') != 'wechat':
+			return
 
-		# find the target
+		# find the target object
+		for friend in self.friends:
+			if friend.wxid == message.get('dest'):
+				friend.send(message.get('content'))
+				return
 
-		# send it
-		logger.info(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+		for group in self.groups:
+			if group.wxid == message.get('dest'):
+				group.send(message.get('content'))
+				return
+
+		logger.warn(message.get('dest') + ' not found in wechat')
+		return
 
 	def _prepare_friends(self, bot):
+		logger.debug('_prepare_friends')
 		self.friends = bot.friends()
+		logger.debug('what the fuck')
 		return
 
 	def _prepare_groups(self, bot):
