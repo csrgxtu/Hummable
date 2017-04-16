@@ -72,6 +72,7 @@ class SlackManager(object):
 		else:
 			gid = rtv
 
+		logger.debug(gid)
 		self.set_sessions(dict(gid=gid, src_id=message.get('src_id'), type=message.get('type')))
 		rtv = self.slack_helper.send_msg_to_private_group(gid, message.get('content'), None, message.get('src_id'), '')
 		if not rtv:

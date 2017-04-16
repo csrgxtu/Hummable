@@ -12,13 +12,14 @@ from conf import settings
 from lib.logger import logger
 import json
 from model.message import Message
+from lib.session_storage import SessionStorage
 import time
 
 
 class WechatManager(object):
 	slack_manager = None
 	bot = None
-	friends = list()
+	friends = None
 	groups = list()
 	mps = list()
 
@@ -28,9 +29,7 @@ class WechatManager(object):
 	def new_msg(self):
 		bot = Bot()
 		self.bot = bot
-		self._prepare_friends(bot)
-		self._prepare_groups(bot)
-		self._prepare_mps(bot)
+		self.prepare_wechat_sessions(bot)
 
 		@bot.register()
 		def recv_msg(msg):
@@ -59,33 +58,46 @@ class WechatManager(object):
 	def send_msg(self, client, obj, msg):
 		message = json.loads(msg.payload.decode("utf-8"))
 		logger.debug(message)
-		if message.get('type') != 'wechat':
-			return
+		if message.get('type') == 'wechat':
+			session_storage = SessionStorage(settings.Wechat_Sessions_File)
+			wechat_sessions = session_storage.read()
 
-		# find the target object
-		for friend in self.friends:
-			if friend.wxid == message.get('dest'):
-				friend.send(message.get('content'))
-				return
+			# find the target object
+			logger.debug(wechat_sessions.get('friends'))
+			for friend in wechat_sessions.get('friends'):
+				if friend.wxid == message.get('dest'):
+					friend.send(message.get('content'))
+					# return
 
-		for group in self.groups:
-			if group.wxid == message.get('dest'):
-				group.send(message.get('content'))
-				return
+			logger.debug(wechat_sessions.get('groups'))
+			for group in wechat_sessions.get('groups'):
+				logger.debug(group.wxid)
+				if group.wxid == message.get('dest'):
+					group.send(message.get('content'))
+					logger.debug('send msg')
+					# return
 
 		logger.warn(message.get('dest') + ' not found in wechat')
-		return
+		# return
+
+	def prepare_wechat_sessions(self, bot):
+		friends = self._prepare_friends(bot)
+		groups = self._prepare_groups(bot)
+		mps = self._prepare_mps(bot)
+		wechat_sessions = dict(friends=friends, groups=groups, mps=mps)
+		try:
+			session_storage = SessionStorage(settings.Wechat_Sessions_File)
+			session_storage.write(wechat_sessions)
+			return True
+		except Exception as e:
+			logger.error(e)
+			return False
 
 	def _prepare_friends(self, bot):
-		logger.debug('_prepare_friends')
-		self.friends = bot.friends()
-		logger.debug('what the fuck')
-		return
+		return bot.friends()
 
 	def _prepare_groups(self, bot):
-		self.groups = bot.groups()
-		return
+		return bot.groups()
 
 	def _prepare_mps(self, bot):
-		self.mps = bot.mps()
-		return
+		return bot.mps()

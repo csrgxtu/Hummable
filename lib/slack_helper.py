@@ -88,7 +88,7 @@ class SlackHelper(object):
 				url = self.api_prefix + 'groups.unarchive'
 				data = dict(token=self.token, channel=channel_id)
 				body = requests.get(url, params=data)
-				print(body.text)
+				logger.debug(body.text)
 				if body.status_code == 200:
 						rtv = json.loads(body.text)
 						if rtv.get('ok') is True:
@@ -103,6 +103,7 @@ class SlackHelper(object):
 				url = self.api_prefix + 'groups.open?token=' + self.token
 				data = dict(channel=channel_id)
 				body = requests.get(url, params=data)
+				logger.debug(body.text)
 				if body.status_code == 200:
 						rtv = json.loads(body.text)
 						if rtv.get('ok') is True:
@@ -233,12 +234,16 @@ class SlackHelper(object):
 
 			for group in rtv:
 				if group.get('name') == name and group.get('is_archived') is False:
+					logger.debug('already open')
+					logger.debug(group)
 					return group.get('id')
 				elif group.get('name') == name and group.get('is_archived') is True:
 					# open the group
-					rtv = self._open_private_group(group.get('id'))
+					logger.debug('need to open it')
+					logger.debug(group)
+					rtv = self._unarchive_private_group(group.get('id'))
 					if not rtv:
-						continue
+						return None
 					else:
 						return group.get('id')
 				else:

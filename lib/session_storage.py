@@ -1,4 +1,4 @@
-import pickle
+import dill as pickle
 from lib.logger import logger
 
 
